@@ -1,0 +1,11 @@
+# DB 파일 제외 (SQLite)
+instance/
+
+# Python 컴파일된 파일들 제외
+*.pyc
+
+# VSCode 설정 파일 제외
+.vscode/
+
+# 환경 변수 파일 제외
+.env
