@@ -61,8 +61,6 @@ PyMySQL==1.1.1
 pyparsing==3.2.1
 python-dateutil==2.9.0.post0
 pytz==2025.1
-pywin32==308
-pywin32-ctypes==0.2.3
 pyzmq==26.2.1
 requests==2.32.3
 rsa==4.9
