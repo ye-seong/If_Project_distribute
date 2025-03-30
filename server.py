@@ -2,14 +2,16 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jobs.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///players.db'  # DB 이름을 players.db로 변경
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # DB 초기화
 db = SQLAlchemy(app)
 
 # 모델 정의
-class PlayerJob(db.Model):
+class PlayerInfo(db.Model):
+    __tablename__ = 'player_info'  # 테이블 이름을 명시적으로 설정할 수 있음, 필요시 추가
+
     id = db.Column(db.Integer, primary_key=True)
     player_id = db.Column(db.String(80), unique=True, nullable=False)
     job = db.Column(db.String(80), nullable=False)
@@ -35,9 +37,9 @@ def register_player():
     if not player_id:
         return jsonify({'status': 'fail', 'reason': 'missing player_id'}), 400
 
-    existing = PlayerJob.query.filter_by(player_id=player_id).first()
+    existing = PlayerInfo.query.filter_by(player_id=player_id).first()
     if not existing:
-        new_entry = PlayerJob(player_id=player_id, job="", team="")
+        new_entry = PlayerInfo(player_id=player_id, job="", team="")
         db.session.add(new_entry)
         db.session.commit()
 
@@ -54,12 +56,12 @@ def update_player():
     if not player_id or not job or not team:
         return jsonify({'status': 'fail', 'reason': 'missing data'}), 400
 
-    existing = PlayerJob.query.filter_by(player_id=player_id).first()
+    existing = PlayerInfo.query.filter_by(player_id=player_id).first()
     if existing:
         existing.job = job
         existing.team = team
     else:
-        new_entry = PlayerJob(player_id=player_id, job=job, team=team)
+        new_entry = PlayerInfo(player_id=player_id, job=job, team=team)
         db.session.add(new_entry)
 
     db.session.commit()
@@ -68,14 +70,14 @@ def update_player():
 # 플레이어 전체 정보 조회
 @app.route("/get_players", methods=["GET"])
 def get_players():
-    jobs = PlayerJob.query.all()
+    jobs = PlayerInfo.query.all()
     result = [{"player_id": j.player_id, "job": j.job, "team": j.team} for j in jobs]
     return jsonify(result)
 
 # 선택 현황 및 팀별 중복 직업 체크
 @app.route('/get_status', methods=['GET'])
 def get_status():
-    jobs = PlayerJob.query.all()
+    jobs = PlayerInfo.query.all()
 
     team_job_counts = {}
     for j in jobs:
@@ -105,7 +107,7 @@ def get_status():
 @app.route('/clear_jobs', methods=['POST'])
 def clear_jobs():
     try:
-        num_deleted = PlayerJob.query.delete()
+        num_deleted = PlayerInfo.query.delete()
         db.session.commit()
         return jsonify({'status': 'success', 'deleted': num_deleted})
     except Exception as e:
@@ -115,5 +117,5 @@ def clear_jobs():
 # 실행
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        db.create_all()  # 테이블 생성
     app.run(host='0.0.0.0', port=5000)
