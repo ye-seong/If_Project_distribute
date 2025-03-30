@@ -65,7 +65,7 @@ pyzmq==26.2.1
 requests==2.32.3
 rsa==4.9
 six==1.17.0
-SQLAlchemy==2.0.40
+SQLAlchemy==1.4.41
 stack-data==0.6.3
 tornado==6.4.2
 tqdm==4.67.1
